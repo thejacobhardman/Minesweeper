@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun placeBombs() {
-        for (i in 1..5) {
+        for (i in 0..9) {
             val row = Random.nextInt(0..9)
             val col = Random.nextInt(0..9)
             cells[row][col].isBomb = true
