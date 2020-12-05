@@ -31,22 +31,41 @@ class MainActivity : AppCompatActivity() {
             createGrid()
             placeBombs()
             placeNumbers()
-            GameText.text = "Play!"
+            "Play!".also { GameText.text = it }
         }
     }
 
     private fun createGrid() {
         cells = Array(10) {row ->
             Array(10) {col ->
-                Cell(true, row, col) //change this back to false before finishing
+                Cell(false, row, col)
             }
         }
         adapter = GridAdapter(this, cells.flatten())
         GameBoard.adapter = adapter
+        GameBoard.isEnabled = true
     }
 
     private fun revealCell(cell: Cell) {
         cell.faceUp = true
+
+        when {
+            cell.isBomb -> {
+                "You Lose!".also { GameText.text = it }
+                GameBoard.isEnabled = false
+            }
+            isGameWon() -> {
+                "You Win!".also { GameText.text = it }
+                GameBoard.isEnabled = false
+            }
+            cell.adjacentBombCount == 0 -> {
+                revealAdjacentCells(cell)
+            }
+            else -> {
+                cell.faceUp = true
+            }
+        }
+        adapter.notifyDataSetChanged()
     }
 
     private fun placeBombs() {
@@ -68,7 +87,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getAdjacentCells(cell:Cell) : List<Cell> {
-        var adjacentCells : MutableList<Cell?> = mutableListOf<Cell?>()
+        val adjacentCells : MutableList<Cell?> = mutableListOf<Cell?>()
         val row = cell.row
         val col = cell.col
 
@@ -82,5 +101,31 @@ class MainActivity : AppCompatActivity() {
         adjacentCells.add(cells.getOrNull(row)?.getOrNull(col + 1))
 
         return adjacentCells.toList().filterNotNull()
+    }
+
+    private fun revealAdjacentCells(cell:Cell) {
+        val adjacentCells = getAdjacentCells(cell).filter { adjacentCell: Cell ->
+            !adjacentCell.faceUp && !adjacentCell.isBomb
+        }
+
+        for (i in adjacentCells.indices) {
+            adjacentCells[i].faceUp = true
+            if (adjacentCells[i].adjacentBombCount == 0) {
+                revealAdjacentCells(adjacentCells[i])
+            }
+        }
+    }
+
+    private fun isGameWon(): Boolean {
+        var isGameOver = true
+
+        cells.forEach { row: Array<Cell> ->
+            row.forEach { cell: Cell ->
+                if (!cell.faceUp && !cell.isBomb) {
+                    isGameOver = false
+                }
+            }
+        }
+        return isGameOver
     }
 }
