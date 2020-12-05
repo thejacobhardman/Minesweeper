@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         RestartButton.setOnClickListener {
             createGrid()
             placeBombs()
+            placeNumbers()
             GameText.text = "Play!"
         }
     }
