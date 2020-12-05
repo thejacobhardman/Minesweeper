@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
         createGrid()
         placeBombs()
+        placeNumbers()
 
         GameBoard.onItemClickListener =
             AdapterView.OnItemClickListener { parent, v, position, id ->
@@ -33,7 +34,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun createGrid() {
+    private fun createGrid() {
         cells = Array(10) {row ->
             Array(10) {col ->
                 Cell(true, row, col) //change this back to false before finishing
@@ -43,15 +44,47 @@ class MainActivity : AppCompatActivity() {
         GameBoard.adapter = adapter
     }
 
-    fun revealCell(cell: Cell) {
+    private fun revealCell(cell: Cell) {
         cell.faceUp = true
     }
 
-    fun placeBombs() {
+    private fun placeBombs() {
         for (i in 1..5) {
             val row = Random.nextInt(0..9)
             val col = Random.nextInt(0..9)
             cells[row][col].isBomb = true
         }
+    }
+
+    private fun placeNumbers() {
+        for (row in 0..9) {
+            for (col in 0..9) {
+                if (!cells[row][col].isBomb) {
+                    val adjacentCells : List<Cell> = getAdjacentCells(cells[row][col])
+                    adjacentCells.forEach() {
+                        if (it.isBomb) {
+                            cells[row][col].adjacentBombCount++
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getAdjacentCells(cell:Cell) : List<Cell> {
+        var adjacentCells : MutableList<Cell?> = mutableListOf<Cell?>()
+        val row = cell.row
+        val col = cell.col
+
+        adjacentCells.add(cells.getOrNull(row - 1)?.getOrNull(col - 1))
+        adjacentCells.add(cells.getOrNull(row - 1)?.getOrNull(col))
+        adjacentCells.add(cells.getOrNull(row - 1)?.getOrNull(col + 1))
+        adjacentCells.add(cells.getOrNull(row + 1)?.getOrNull(col - 1))
+        adjacentCells.add(cells.getOrNull(row + 1)?.getOrNull(col))
+        adjacentCells.add(cells.getOrNull(row + 1)?.getOrNull(col + 1))
+        adjacentCells.add(cells.getOrNull(row)?.getOrNull(col - 1))
+        adjacentCells.add(cells.getOrNull(row)?.getOrNull(col + 1))
+
+        return adjacentCells.toList().filterNotNull()
     }
 }
