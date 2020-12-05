@@ -58,16 +58,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun placeNumbers() {
-        for (row in 0..9) {
-            for (col in 0..9) {
-                if (!cells[row][col].isBomb) {
-                    val adjacentCells : List<Cell> = getAdjacentCells(cells[row][col])
-                    adjacentCells.forEach() {
-                        if (it.isBomb) {
-                            cells[row][col].adjacentBombCount++
-                        }
-                    }
-                }
+        cells.forEach { row: Array<Cell> ->
+            row.forEach { cell: Cell ->
+                cell.adjacentBombCount = getAdjacentCells(cell).filter { adjacentCell: Cell ->
+                    adjacentCell.isBomb
+                }.size
             }
         }
     }
